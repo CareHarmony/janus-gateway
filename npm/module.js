@@ -7,4 +7,5 @@ to_remove: {
 
 @JANUS_CODE@
 
-export default Janus;
+// export default Janus;
+export { Janus };
