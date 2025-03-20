@@ -82,6 +82,7 @@ export interface InitOptions {
 	debug?: boolean | 'all' | DebugLevel[];
 	callback?: Function;
 	dependencies?: DependenciesResult;
+	rtcStatsHelper?: RtcStatsHelper;
 }
 
 export interface ConstructorOptions {
@@ -233,6 +234,7 @@ export interface WebRTCInfo {
 	};
 	myStream: MediaStream;
 	pc: RTCPeerConnection;
+	pcProbe?: PcProbe | null;
 	receiverTransforms: {
 		audio: TransformStream;
 		video: TransformStream;
@@ -443,3 +445,11 @@ export class Janus {
 	destroy(callbacks: DestroyOptions): void;
 }
 
+export interface PcProbe {
+	stop: () => void;
+}
+
+export interface RtcStatsHelper {
+	removeRtcProbe: (pcProbe: PcProbe) => void;
+	startRtcProbe: (pc: any) => PcProbe;
+}
