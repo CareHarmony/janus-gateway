@@ -430,6 +430,7 @@ var Janus = (function (factory) {
 			Janus.newWebSocket = usedDependencies.newWebSocket;
 			Janus.extension = usedDependencies.extension;
 			Janus.extension.init();
+			Janus.rtcStatsHelper = options.rtcStatsHelper || null;
 
 			// Helper method to enumerate devices
 			Janus.listDevices = function(callback, config) {
@@ -830,6 +831,11 @@ var Janus = (function (factory) {
 				if(!pluginHandle) {
 					Janus.debug("This handle is not attached to this session");
 					return;
+				}
+				if (pluginHandle.webrtcStuff.pcProbe) {
+					pluginHandle.webrtcStuff.pcProbe.stop();
+					Janus.rtcStatsHelper && Janus.rtcStatsHelper.removeRtcProbe(pluginHandle.webrtcStuff.pcProbe);
+					pluginHandle.webrtcStuff.pcProbe = null;
 				}
 				pluginHandle.webrtcState(false, json["reason"]);
 				pluginHandle.hangup();
@@ -1338,6 +1344,7 @@ var Janus = (function (factory) {
 							mySdp : null,
 							mediaConstraints : null,
 							pc : null,
+							pcProbe: null,
 							dataChannelOptions: callbacks.dataChannelOptions,
 							dataChannel : {},
 							dtmfSender : null,
@@ -1417,6 +1424,7 @@ var Janus = (function (factory) {
 							mySdp : null,
 							mediaConstraints : null,
 							pc : null,
+							pcProbe : null,
 							dataChannelOptions: callbacks.dataChannelOptions,
 							dataChannel : {},
 							dtmfSender : null,
@@ -1883,6 +1891,9 @@ var Janus = (function (factory) {
 			}
 			let config = pluginHandle.webrtcStuff;
 			if(config.pc) {
+				if (!config.pcProbe) {
+					config.pcProbe = Janus.rtcStatsHelper && Janus.rtcStatsHelper.startRtcProbe(config.pc);
+				}
 				// Nothing to do, we have a PeerConnection already
 				return;
 			}
@@ -1916,6 +1927,7 @@ var Janus = (function (factory) {
 			}
 			Janus.log('Creating PeerConnection');
 			config.pc = new RTCPeerConnection(pc_config);
+			config.pcProbe = Janus.rtcStatsHelper && Janus.rtcStatsHelper.startRtcProbe(config.pc);
 			Janus.debug(config.pc);
 			if(config.pc.getStats) {	// FIXME
 				config.volume = {};
@@ -2748,6 +2760,11 @@ var Janus = (function (factory) {
 					};
 					try {
 						pluginHandle.onlocaltrack(nt, true);
+						$(document).trigger('localtrackstream', {
+							detail: {
+								stream: config.myStream
+							}
+						});
 					} catch(e) {
 						Janus.error("Error calling onlocaltrack for track add", e);
 					}
