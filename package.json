@@ -38,6 +38,10 @@
 	"scripts": {
 		"lint": "npx eslint --debug html",
 		"rollup": "npx rollup -c npm/rollup.config.mjs",
-		"prerelease": "npm run rollup -- --o npm/dist/janus.es.js --f es && node -e \"const fs=require('fs'); const data=fs.readFileSync('./html/demos/janus.js'); fs.mkdirSync('./npm/src', {recursive:true}); fs.writeFileSync('./npm/src/janus.js',data);\""
+		"prerelease": "npm run rollup -- --o npm/dist/janus.es.js --f es && node -e \"const fs=require('fs'); const data=fs.readFileSync('./html/demos/janus.js'); fs.mkdirSync('./npm/src', {recursive:true}); fs.writeFileSync('./npm/src/janus.js',data);\"",
+		"prepare-comment": "echo 'This works on yarn version 1.X but not >= 2'",
+		"prepare": "npm run rollup -- --o npm/dist/janus.es.js --f es && node -e \"const fs=require('fs'); const data=fs.readFileSync('./html/demos/janus.js'); fs.mkdirSync('./npm/src', {recursive:true}); fs.writeFileSync('./npm/src/janus.js',data);\"",
+		"prepack-comment": "echo 'This works on yarn versions >= 2'",
+		"prepack": "npm run rollup -- --o npm/dist/janus.es.js --f es && node -e \"const fs=require('fs'); const data=fs.readFileSync('./html/demos/janus.js'); fs.mkdirSync('./npm/src', {recursive:true}); fs.writeFileSync('./npm/src/janus.js',data);\""
 	}
 }
